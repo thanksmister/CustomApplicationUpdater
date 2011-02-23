@@ -1,0 +1,80 @@
+
+@namespace mx "library://ns.adobe.com/flex/halo";
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace ns "library://ns.adobe.com/flex/mx";
+
+global
+{
+	font-family: Lucida Grande, Verdana, Arial, sans; 
+	fontSize: 12;
+}
+
+s|WindowedApplication { 
+	background-color:#EAEAEA;
+	font-family: Lucida Grande, Verdana, Arial, sans;
+}
+
+.updateDialogWindow { 
+	backgroundColor: #292929;
+	cornerRadius: 0;
+	borderColor: #292929;
+	dropShadowEnabled: true;
+}
+
+.updateDialogTextArea {
+    fontFamily: Lucida Grande, Verdana, Arial, sans;
+	font-size: 10;
+	font-weight: normal;
+	leading: 0;
+	border-color: #222222;
+	contentBackgroundColor: #393939;
+	padding-left: 6;
+	padding-right: 6;
+	border-thickness: 1;
+	background-alpha: 1;
+	border-style: solid;
+	color: #ffffff;	
+}
+
+.updateDialogText {
+	font-weight: bold;
+	color: #ffffff;
+	font-family: Lucida Grande, Verdana, Arial, sans;
+	font-size: 10;
+}
+
+.updateDialogLabel {
+    paddingBottom: 0;
+	paddingLeft: 0;
+	paddingRight: 0;
+	paddingTop: 0;
+	color: #ffffff;
+	font-family: Lucida Grande, Verdana, Arial, sans;
+	font-size: 10;
+	font-weight: normal;
+}
+
+.updateDialogHRule{
+   strokeColor: #333333;
+   shadowColor: #333333;
+}
+
+.installDiallogProgress {
+   borderColor: #444444;
+   barColor: #2ca42c;
+   trackColors: #242424, #242424;
+   trackHeight: 15;
+}
+
+.updateDiallogProgress {
+   borderColor: #444444;
+   barColor: #3475a6;
+   trackColors: #242424, #242424;
+   trackHeight: 15;
+}
+
+.updateTitle {
+	color: #FFFFFF;
+	font-family: Lucida Grande, Verdana, Arial, sans;
+	fontSize: 19;
+}

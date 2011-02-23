@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<update xmlns="http://ns.adobe.com/air/framework/update/description/2.5">
+  <versionNumber>2.0.0</versionNumber>
+  <url>app:/server/UpdateTester.air</url>
+  <description>
+  	<![CDATA[Version 2: 
+        * Testing the update feature. 
+        * More testing and bug fixes, bla, bla, bla.]]>
+  </description>
+</update>

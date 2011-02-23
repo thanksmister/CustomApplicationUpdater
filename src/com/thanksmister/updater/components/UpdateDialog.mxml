@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx" 
+		  maximizable="false" resizable="false" 
+		  currentState="{_updateState}"
+		  showStatusBar="false" 
+		  width="530" height="180" 
+		  height.updateError="180"
+		  height.installUpdate="390"
+		  height.updateAvailable="360"
+		  styleName="updateDialogWindow">
+	
+	<fx:Metadata>
+		[Event(name="checkUpdate", type="flash.events.Event")]
+		[Event(name="downloadUpdate", type="flash.events.Event")]
+		[Event(name="downloadUpdate", type="flash.events.Event")]
+		[Event(name="cancelUpdate", type="flash.events.Event")]
+	</fx:Metadata>
+	
+	<fx:Script>
+		<![CDATA[
+			
+			public static var EVENT_CHECK_UPDATE:String = "checkUpdate";
+			public static var EVENT_INSTALL_UPDATE:String = "installUpdate";
+			public static var EVENT_DOWNLOAD_UPDATE:String = "downloadUpdate";
+			public static var EVENT_CANCEL_UPDATE:String = "cancelUpdate";
+			public static var EVENT_INSTALL_LATER:String = "installLater";
+			
+			public static const UPDATE_DOWNLOADING:String = "updateDownloading";
+			public static const INSTALL_UPDATE:String = "installUpdate";
+			public static const UPDATE_AVAILABLE:String = "updateAvailable";
+			public static const NO_UPDATE:String = "noUpdate";
+			public static const CHECK_UPDATE:String = "checkUpdate";
+			public static const UPDATE_ERROR:String = "updateError";
+			
+			[Bindable] private var _isFirstRun:String;
+			[Bindable] private var _installedVersion:String;
+			[Bindable] private var _updateVersion:String;
+			[Bindable] private var _updateDescription:String;
+			[Bindable] private var _applicationName:String;
+			[Bindable] private var _updateState:String;
+			[Bindable] private var _errorText:String = "An unexpected error has occured.";
+			
+			private var _upateState:String;
+			
+			[Embed(source="../../../../assets/images/UpdateIcon.png")] 
+			[Bindable] 
+			public var updateIcon:Class;
+			
+			public function set isFirstRun(value:String):void
+			{
+				_isFirstRun = value;
+			}
+			
+			public function set installedVersion(value:String):void
+			{
+				_installedVersion = value;
+			}
+			
+			public function set upateVersion(value:String):void
+			{
+				_updateVersion = value;
+			}
+			
+			public function set updateState(value:String):void
+			{
+				_updateState = value;
+			}
+			
+			public function set applicationName(value:String):void
+			{
+				_applicationName = value;
+			}
+			
+			public function set description(value:String):void
+			{
+				_updateDescription = value;
+			}
+			
+			public function set errorText(value:String):void
+			{
+				_errorText = value;
+			}
+			
+			public function downloadProgress(value:Number):void
+			{
+				if(progressBar) progressBar.setProgress(value, 100);
+			}
+			
+			private function continueUpdate():void
+			{
+				if (this.currentState == UpdateDialog.CHECK_UPDATE){
+					this.dispatchEvent(new Event(EVENT_CHECK_UPDATE));
+				} else if (this.currentState == UPDATE_AVAILABLE) {
+					this.dispatchEvent(new Event(EVENT_DOWNLOAD_UPDATE));
+				}else if (this.currentState == INSTALL_UPDATE) {
+					this.dispatchEvent(new Event(EVENT_INSTALL_UPDATE));
+				}
+			}
+			
+			private function cancelUpdate():void
+			{
+				if (this.currentState == INSTALL_UPDATE) {
+					this.dispatchEvent(new Event(EVENT_INSTALL_LATER));
+					return;
+				}
+				this.dispatchEvent(new Event(EVENT_CANCEL_UPDATE));
+			}
+			
+			public function destroy():void
+			{
+				iconImage.unloadAndStop(true);
+				iconImage.source = null;
+				
+				if(continueButton) continueButton.removeEventListener(MouseEvent.CLICK, continueUpdate);
+				if(continueButton) cancelButton.removeEventListener(MouseEvent.CLICK, cancelUpdate);
+				
+				this.removeAllElements();
+			}
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+
+	<s:states>
+		<s:State name="checkUpdate"/>
+		<s:State name="noUpdate"/>
+		<s:State name="updateAvailable"/>
+		<s:State name="installUpdate"/>
+		<s:State name="updateDownloading"/>
+		<s:State name="updateError"/>
+	</s:states>
+	
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	
+	<mx:Image source="{updateIcon}" x="15" y="25" width="81" height="74" id="iconImage"/>
+	
+	<s:Label x="152" y="86" text="Application:" styleName="updateDialogLabel" />
+	
+	<s:Label x="230" y="86" text="{this._applicationName}" styleName="updateDialogText"/>
+
+	<s:Label x="107" y="19" 
+			 text.checkUpdate="Check for updates" 
+			 text.updateAvailable="Update Available" 
+			 text.noUpdate="No Updates"
+			 text.installUpdate="Install update"
+			 text.updateDownloading="Downloading Update"
+			 text.updateError="Unexpected error"
+			 styleName="updateTitle" />
+
+	<s:Label x="107" y="50" 
+			 text.checkUpdate="Allow the application to check for updates?" 
+			 text.updateAvailable="An updated version of the application is available for download." 
+			 text.noUpdate="There is no application update available at this time."
+			 text.installUpdate="The update for the application is downloaded and ready to be installed."
+			 text.updateDownloading="Download progress..."
+			 text.updateError="{_errorText}"
+			 styleName="updateDialogText"/>
+	
+	<s:Label x="118" y="114" text="Installed Version:" styleName="updateDialogLabel" includeIn="installUpdate, updateAvailable"/>
+
+	<s:Label x="127" y="134" text="Update Version:" styleName="updateDialogLabel" includeIn="installUpdate, updateAvailable"/>
+	
+	<s:Label x="10" y="222" text="Release notes" styleName="updateDialogLabel" includeIn="updateAvailable, installUpdate" x.installUpdate="10" y.installUpdate="253"/>
+	
+	<s:Label x="230" y="114" text="{this._installedVersion}" styleName="updateDialogText" includeIn="installUpdate, updateAvailable"/>
+	
+	<s:Label x="230" y="134" text="{this._updateVersion}" styleName="updateDialogText" includeIn="installUpdate, updateAvailable"/>
+	
+	<s:TextArea text="{_updateDescription}" x="10" y="248" width="508" height="100" 
+				contentBackgroundColor="0x393939"
+				includeIn="updateAvailable, installUpdate" x.installUpdate="10" y.installUpdate="279" 
+				skinClass="com.thanksmister.updater.components.UpdateTextAreaSkin"/>
+	
+	<mx:HRule x="10" y="214" width="508" styleName="updateDialogHRule" 
+			  includeIn="updateAvailable, installUpdate" x.installUpdate="10" y.installUpdate="245"/>
+	
+	<mx:ProgressBar x="107" y="84" width="411" label=" " id="progressBar" 
+					mode="manual" height="15" styleName="updateDiallogProgress" 
+					includeIn="updateDownloading, installUpdate" x.installUpdate="107" y.installUpdate="163"/>
+
+	<s:Button x="107" y="129" 
+			  y.updateAvailable="164"
+			  y.installUpdate="198"
+			  label="Cancel" 
+			  label.updateAvailable="Download later"
+			  label.noUpdate="Close"
+			  label.updateError="Close"
+			  label.installUpdate="Postpone until restart"
+			  id="cancelButton" 
+			  click="cancelUpdate()" 
+			  height="34" 
+			  skinClass="com.thanksmister.updater.components.UpdateButtonSkin"/>
+	
+	<s:Button x="202" y="129" 
+			  y.updateAvailable="164"
+			  y.installUpdate="198"
+			  x.updateAvailable="269"
+			  x.installUpdate="320"
+			  label="Check for Updates" 
+			  label.updateAvailable="Download now"
+			  label.installUpdate="Install update"
+			  excludeFrom="noUpdate,updateError, updateDownloading"
+			  id="continueButton" 
+			  click="continueUpdate()" 
+			  height="34" 
+			  skinClass="com.thanksmister.updater.components.UpdateButtonSkin"/>
+	
+</s:Window>
