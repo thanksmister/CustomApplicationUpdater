@@ -199,6 +199,8 @@
     <s:states>
         <s:State name="normal"/>
         <s:State name="disabled"/>
+		<s:State name="disabledWithPrompt"/>
+		<s:State name="normalWithPrompt"/>
     </s:states>
 
     <s:Rect id="border" left="0" right="0" top="0" bottom="0">
