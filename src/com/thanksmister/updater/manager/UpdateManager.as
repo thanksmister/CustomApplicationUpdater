@@ -1,29 +1,28 @@
 /*
 UpdateManager
- 
 This class uses the ApplicationUpdater framework for creating an update dialog similar
-to the ApplicationUpdaterUI framework used to update Adobe AIR applications.  
+to the ApplicationUpdaterUI framework used to update Adobe AIR applications.
 
 How to use:
 
-Main.mxml 
+Main.mxml
 
 import com.thanksmister.UpdateManager;
 var updater:UpdateManager = new UpdateManager(false, false);
-updater.checkNow()  to open manually.
+updater.checkNow() to open manually.
 
 updater.xml in config folder
 
-<?xml version="1.0" encoding="utf-8"?> 
- <configuration xmlns="http://ns.adobe.com/air/framework/update/configuration/1.0" >
-   <url>http://localHost/desktop/thanksmister/update.xml</url>
-   <delay>.003</delay>
+<?xml version="1.0" encoding="utf-8"?>
+<configuration xmlns="http://ns.adobe.com/air/framework/update/configuration/1.0" >
+<url>http://localHost/desktop/thanksmister/update.xml</url>
+<delay>.003</delay>
 </configuration>
 
-Change the delay node to the update interval time.  Setting the delay to 0 will prevent automatic update checks.
-The default inteval is 3 mintues.  Alternative you can call updater.checkNow() to check manually.  The url node
+Change the delay node to the update interval time. Setting the delay to 0 will prevent automatic update checks.
+The default inteval is 3 mintues. Alternative you can call updater.checkNow() to check manually. The url node
 should point to the update.xml file (located in server folder in these files) to the server along with the AIR
-file for the update.   
+file for the update.
 
 
 This program is free software: you can redistribute it and/or modify
@@ -33,15 +32,15 @@ the Free Software Foundation, either version 3 of the License, or
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 Author: Michael Ritchie
-		www.thanksmister.com
-        michael.ritchie@gmail.com
+www.thanksmister.com
+michael.ritchie@gmail.com
 */
 package com.thanksmister.updater.manager
 {
@@ -53,13 +52,13 @@ package com.thanksmister.updater.manager
 	import air.update.events.StatusUpdateEvent;
 	import air.update.events.UpdateEvent;
 	
+	import com.thanksmister.updater.components.UpdateDialog;
+	
 	import flash.desktop.NativeApplication;
 	import flash.events.ErrorEvent;
 	import flash.events.Event;
 	import flash.events.ProgressEvent;
 	import flash.filesystem.File;
-	import com.thanksmister.updater.components.UpdateDialog;
-	import com.thanksmister.updater.components.UpdateDialog;
 	
 	public class UpdateManager
 	{
@@ -77,18 +76,21 @@ package com.thanksmister.updater.manager
 		private var initializeCheckNow:Boolean = false;
 		private var isInstallPostponed:Boolean = false;
 		private var showCheckState:Boolean = true;
+		private var showNoUpdateState:Boolean = false;
 		
 		/**
 		 * Constructer for UpdateManager Class
-		 * 
+		 *
 		 * @param showCheckState Boolean value to show the Check Now dialog box
 		 * @param initializeCheckNow Boolean value to initialize application and run check on instantiation of the Class
+		 * @param showNoUpdateState Boolean value to show dialog if there is no update available, set true on manual update
 		 * */
-		public function UpdateManager(showCheckState:Boolean = true, initializeCheckNow:Boolean = false)
+		public function UpdateManager(showCheckState:Boolean = false, initializeCheckNow:Boolean = false, showNoUpdateState:Boolean = false)
 		{
 			this.showCheckState = showCheckState;
 			this.configurationFile = new File("app:/assets/data/update.xml");
 			this.initializeCheckNow = initializeCheckNow;
+			this.showNoUpdateState = showNoUpdateState;
 			initialize();
 		}
 		
@@ -101,8 +103,8 @@ package com.thanksmister.updater.manager
 				appUpdater.checkNow();
 			}
 		}
-
-		//----------  ApplicationUpdater ----------------//
+		
+		//---------- ApplicationUpdater ----------------//
 		
 		private function initialize():void
 		{
@@ -135,7 +137,7 @@ package com.thanksmister.updater.manager
 			this.isFirstRun = event.target.isFirstRun;
 			this.applicationName = getApplicationName();
 			this.installedVersion = getApplicationVersion();
-		
+			
 			if(showCheckState && initializeCheckNow) {
 				createDialog(UpdateDialog.CHECK_UPDATE);
 			} else if (initializeCheckNow) {
@@ -145,23 +147,23 @@ package com.thanksmister.updater.manager
 		
 		private function statusUpdate(event:StatusUpdateEvent):void
 		{
-			 event.preventDefault();
-			 if(event.available){
-			 	this.description = getUpdateDescription(event.details);
-			 	this.upateVersion = event.version;
-			 	
-			 	if(!showCheckState) {
-			 		createDialog(UpdateDialog.UPDATE_AVAILABLE);
-			 	} else if (updaterDialog) {
-			 		updaterDialog.applicationName = this.applicationName;
+			event.preventDefault();
+			if(event.available){
+				this.description = getUpdateDescription(event.details);
+				this.upateVersion = event.version;
+				
+				if(!showCheckState) {
+					createDialog(UpdateDialog.UPDATE_AVAILABLE);
+				} else if (updaterDialog) {
+					updaterDialog.applicationName = this.applicationName;
 					updaterDialog.installedVersion = this.installedVersion;
 					updaterDialog.upateVersion = this.upateVersion;
-			 		updaterDialog.description = this.description
-			 		updaterDialog.updateState = UpdateDialog.UPDATE_AVAILABLE;
-			 	}
-			 } else {
-			 	createDialog(UpdateDialog.NO_UPDATE);
-			 }
+					updaterDialog.description = this.description
+					updaterDialog.updateState = UpdateDialog.UPDATE_AVAILABLE;
+				}
+			} else if (showNoUpdateState) {
+				createDialog(UpdateDialog.NO_UPDATE);
+			}
 		}
 		
 		private function statusUpdateError(event:StatusUpdateErrorEvent):void
@@ -225,7 +227,7 @@ package com.thanksmister.updater.manager
 			updaterDialog.updateState = UpdateDialog.UPDATE_ERROR;
 		}
 		
-		//----------  UpdateDialog Events ----------------//
+		//---------- UpdateDialog Events ----------------//
 		
 		private function createDialog(state:String):void
 		{
@@ -236,14 +238,14 @@ package com.thanksmister.updater.manager
 				updaterDialog.installedVersion = this.installedVersion;
 				updaterDialog.upateVersion = this.upateVersion;
 				updaterDialog.updateState = state;
-			 	updaterDialog.description = this.description;
+				updaterDialog.description = this.description;
 				updaterDialog.addEventListener(UpdateDialog.EVENT_CHECK_UPDATE, checkUpdate);
 				updaterDialog.addEventListener(UpdateDialog.EVENT_INSTALL_UPDATE, installUpdate);
 				updaterDialog.addEventListener(UpdateDialog.EVENT_CANCEL_UPDATE, cancelUpdate);
 				updaterDialog.addEventListener(UpdateDialog.EVENT_DOWNLOAD_UPDATE, downloadUpdate);
 				updaterDialog.addEventListener(UpdateDialog.EVENT_INSTALL_LATER, installLater);
 				updaterDialog.open();
-			} 
+			}
 		}
 		
 		/**
@@ -289,7 +291,7 @@ package com.thanksmister.updater.manager
 			destoryUpdater();
 		}
 		
-		//----------  Destroy All ----------------//
+		//---------- Destroy All ----------------//
 		
 		private function destroy():void
 		{
@@ -327,7 +329,7 @@ package com.thanksmister.updater.manager
 			isInstallPostponed = false;
 		}
 		
-		//----------  Utilities ----------------//
+		//---------- Utilities ----------------//
 		
 		/**
 		 * Getter method to get the version of the application
@@ -342,7 +344,7 @@ package com.thanksmister.updater.manager
 			var ns:Namespace = appXML.namespace();
 			return appXML.ns::version;
 		}
-
+		
 		/**
 		 * Getter method to get the name of the application file
 		 * Based on Jens Krause blog post: http://www.websector.de/blog/2009/09/09/custom-applicationupdaterui-for-using-air-updater-framework-in-flex-4/
@@ -356,7 +358,7 @@ package com.thanksmister.updater.manager
 			var ns:Namespace = appXML.namespace();
 			return appXML.ns::filename;
 		}
-
+		
 		/**
 		 * Getter method to get the name of the application, this does not support multi-language.
 		 * Based on a method from Adobes ApplicationUpdateDialogs.mxml, which is part of Adobes AIR Updater Framework
@@ -386,7 +388,7 @@ package com.thanksmister.updater.manager
 			{
 				applicationName=elem.toString();
 			}
-	
+			
 			return applicationName;
 		}
 		
@@ -402,7 +404,7 @@ package com.thanksmister.updater.manager
 		protected function getUpdateDescription(details:Array):String
 		{
 			var text:String="";
-
+			
 			if (details.length == 1)
 			{
 				text=details[0][1];

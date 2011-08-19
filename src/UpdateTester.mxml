@@ -32,7 +32,7 @@
 					updates = xml..updateurl.toString();
 				
 				if(updates)
-					updater = new UpdateManager(false, false);
+					updater = new UpdateManager(false, false, true);
 			}
 			
 			private function checkUpdates():void
